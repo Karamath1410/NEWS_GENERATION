@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Powered Automated News Generation</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="mb-4">
+            <h1 class="text-center">AI Powered Automated News Generation</h1>
+
+            {% if session.get('logged_in') and user %}
+                <div class="user-preferences">
+                    <h2>Your Categories</h2>
+                    <div class="categories-container">
+                        {% if user.categories %}
+                            {% for category in user.categories %}
+                                <div class="category-tag">{{ category.strip().title() }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="category-tag">No categories selected</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="/" class="search-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="text" name="query" class="form-control" placeholder="Search Query" required>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="language" class="form-select">
+                            <option value="en" {% if selected_language == 'en' %}selected{% endif %}>English</option>
+                            <option value="te" {% if selected_language == 'te' %}selected{% endif %}>Telugu</option>
+                            <option value="hi" {% if selected_language == 'hi' %}selected{% endif %}>Hindi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="text-end mt-3">
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="mb-4">Latest News</h2>
+                    {% for article in articles %}
+                    <article class="article">
+                        <div class="article-image-container">
+                            {% if article.image %}
+                            <img src="{{ article.image }}" 
+                                 alt="{{ article.title }}" 
+                                 class="article-image"
+                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.svg') }}'"
+                                 loading="lazy">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/placeholder.svg') }}" 
+                                 alt="No image available" 
+                                 class="article-image">
+                            {% endif %}
+                        </div>
+                        <h2><a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a></h2>
+                        <p>{{ article.description }}</p>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    <h2 class="mb-4">Fact Checks</h2>
+                    {% for fact_check in fact_checks %}
+                    <div class="fact-check">
+                        <h3>
+                            <a href="{{ fact_check.claimReview[0].url }}" target="_blank" rel="noopener">
+                                {{ fact_check.text }}
+                            </a>
+                        </h3>
+                        <p class="mt-2">Rating: {{ fact_check.claimReview[0].textualRating }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/image-handler.js') }}"></script>
+</body>
+</html>
